@@ -43,8 +43,8 @@ export async function POST(req) {
     });
 
     const data = await response.json();
-
-    console.log('DeepSeek API Raw Response:', data);
+    
+    console.log(data)
 
     const generatedMessage = data.choices[0].message.content;
 

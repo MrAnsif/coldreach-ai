@@ -1,9 +1,12 @@
 'use client';
+import { loadStripe } from '@stripe/stripe-js';
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
 export default function SubscriptionTier({ isPro }) {
   const tiers = [
     {
       name: 'Free',
+      plan: 'free',
       price: '$0',
       features: [
         '5 messages/month',
@@ -14,8 +17,9 @@ export default function SubscriptionTier({ isPro }) {
       current: !isPro,
     },
     {
-      name: 'Pro',
-      price: '$15/month',
+      name: 'Starter',
+      plan: 'starter',
+      price: '$9/month',
       features: [
         '200 messages/month',
         'Advanced personalization',
@@ -27,8 +31,9 @@ export default function SubscriptionTier({ isPro }) {
       highlighted: true
     },
     {
-      name: 'Agency',
-      price: '$59/month',
+      name: 'pro',
+      plan: 'pro',
+      price: '$29/month',
       features: [
         'Unlimited messages',
         'All Pro features',
@@ -40,14 +45,25 @@ export default function SubscriptionTier({ isPro }) {
     }
   ];
 
+  const handleSubscribe = async (plan) => {
+    const res = await fetch('/api/create-checkout-session', {
+      method: 'POST',
+      body: JSON.stringify({ plan }),
+    });
+    const { sessionId } = await res.json();
+
+    const stripe = await stripePromise;
+    stripe.redirectToCheckout({ sessionId });
+  };
+
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {tiers.map((tier) => (
         <div
           key={tier.name}
-          className={`border rounded-lg p-6 ${
-            tier.highlighted ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200'
-          } ${tier.current ? 'bg-blue-50' : 'bg-white'}`}
+          className={`border rounded-lg p-6 ${tier.highlighted ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200'
+            } ${tier.current ? 'bg-blue-50' : 'bg-white'}`}
         >
           <h3 className="text-lg font-medium">{tier.name}</h3>
           <p className="mt-2 text-3xl font-bold">{tier.price}</p>
@@ -71,11 +87,11 @@ export default function SubscriptionTier({ isPro }) {
             ))}
           </ul>
           <button
-            className={`mt-6 w-full py-2 px-4 rounded-md ${
-              tier.current
-                ? 'bg-gray-300 text-gray-700 cursor-not-allowed'
-                : 'bg-blue-600 text-white hover:bg-blue-700'
-            }`}
+            onClick={() => handleSubscribe(tier.plan)}
+            className={`mt-6 w-full py-2 px-4 rounded-md ${tier.current
+              ? 'bg-gray-300 text-gray-700 cursor-not-allowed'
+              : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
             disabled={tier.current}
           >
             {tier.cta}

@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server'
-import SubscriptionTier from '@/components/SubscriptionTier';
 import { checkSubscription } from '@/lib/subscription';
 
 export default async function Dashboard() {
@@ -24,7 +23,7 @@ export default async function Dashboard() {
 
       <div>
         <h3 className="text-lg font-medium text-gray-900 mb-4">Your Subscription</h3>
-        <SubscriptionTier isPro={isPro} />
+        {/* <SubscriptionTier isPro={isPro} /> */}
       </div>
 
       <div className="bg-white shadow rounded-lg p-6">
